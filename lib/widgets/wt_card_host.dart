@@ -15,6 +15,25 @@ class _WtCardHostState extends State<WtCardHost> {
   Widget build(BuildContext buildContext) {
     final appState = buildContext.watch<WatchtowerAppState>();
 
-    return Wrap(spacing: 8, runSpacing: 4, children: appState.getCards());
+    return Wrap(
+      // mainAxisAlignment: MainAxisAlignment.start,
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      alignment: WrapAlignment.center,
+      runAlignment: WrapAlignment.spaceBetween,
+      spacing: 12,
+      runSpacing: 12,
+      children: <Widget>[
+        ...appState
+            .getCards()
+            .map((card) => Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        width: 2,
+                        color: Theme.of(buildContext).primaryColorLight)),
+                width: MediaQuery.of(buildContext).size.width / 3,
+                child: card))
+            .toList()
+      ],
+    );
   }
 }

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:watchtower/services/now_service.dart';
 import 'package:watchtower/services/wt_card_clock.dart';
+import 'package:watchtower/widgets/wt_cards/wt_countdown_card/wt_countdown.dart';
+import 'package:watchtower/widgets/wt_cards/wt_countdown_card/wt_countdown_card.dart';
 import 'package:watchtower/widgets/wt_cards/wt_markdown_card.dart';
 
 import 'models/wt_card.dart';
 import 'widgets/my_home_page.dart';
 
-final getIt = GetIt.instance;
-
 void buildIocContainer() {
-  getIt.registerSingleton<WtCardClock>(WtCardClock());
+  GetIt.I.registerSingleton<WtCardClock>(WtCardClock());
+  GetIt.I.registerSingleton<NowService>(const NowService());
 }
 
 void main() {
+  buildIocContainer();
   runApp(const WatchtowerApp());
 }
 
@@ -51,7 +54,22 @@ class WatchtowerAppState extends ChangeNotifier {
       WtMarkdownCardData("_These_ are my **secret thoughts**."),
       WtCardClockInterval.oneMinute,
       key: const Key("659eafd1-af0f-41ec-b869-d511f921f43e"),
-    )
+    ),
+    WtCountdownCard(
+        "Countdown to everything",
+        WtCountdownCardData(
+          primaryCountdown: WtCountdown(
+              description: "Destiny: Lightfall",
+              date: DateTime(2023, DateTime.february, 28)),
+          countdowns: [
+            WtCountdown(
+                date: DateTime(2023, DateTime.february, 7),
+                description: "Phyrexia: All Will Be One"),
+            WtCountdown(
+                date: DateTime(2023, DateTime.april, 4),
+                description: "Hogwarts Legacy (PS4/XB1)")
+          ],
+        ))
   ];
 
   List<WtCard> getCards() {

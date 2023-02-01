@@ -1,5 +1,6 @@
 import "dart:async" show Timer;
 import "package:event/event.dart";
+import "package:get_it/get_it.dart";
 
 class WtCardClockEventArgs extends EventArgs {
   final List<Duration> _durationsTicked;
@@ -28,9 +29,8 @@ enum WtCardClockInterval {
   final Duration duration;
 }
 
-class WtCardClock extends Object {
-  static final _timer = Timer.periodic(
-      const Duration(seconds: 30), (Timer timer) => _broadcastEvent(timer));
+class WtCardClock extends Object with Disposable {
+  late Timer _timer;
 
   static Event tick = Event();
   static final updateIntervals = [
@@ -41,8 +41,13 @@ class WtCardClock extends Object {
     const Duration(minutes: 20),
   ];
 
-  static void _broadcastEvent(Timer timer) {
-    var durations = List.filled(1, const Duration(seconds: 30));
+  WtCardClock() {
+    _timer = Timer.periodic(
+        const Duration(seconds: 30), (Timer timer) => _broadcastEvent(timer));
+  }
+
+  void _broadcastEvent(Timer timer) {
+    var durations = List.filled(1, const Duration(seconds: 30), growable: true);
 
     for (var duration in WtCardClock.updateIntervals) {
       _maybeAddTickDuration(durations, timer.tick, duration);
@@ -51,12 +56,19 @@ class WtCardClock extends Object {
     tick.broadcast(WtCardClockEventArgs(durations));
   }
 
-  static List<Duration> _maybeAddTickDuration(
+  List<Duration> _maybeAddTickDuration(
       List<Duration> durations, int tick, Duration duration) {
     if (tick % Duration.secondsPerMinute == 0) {
       durations.add(duration);
     }
 
     return durations;
+  }
+
+  @override
+  void onDispose() {
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
   }
 }
